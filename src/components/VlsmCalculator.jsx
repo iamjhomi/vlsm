@@ -150,6 +150,42 @@ export default function VlsmCalculator() {
     {/* Full-width results below the main grid */}
     {allocs && (
       <div className="results-card fullwidth" style={{ marginTop: 18 }}>
+        {/* Summary Cards */}
+        <div className="stats-cards-grid">
+          <div className="stat-card">
+            <div className="stat-icon stat-icon-subnets">✓</div>
+            <div className="stat-content">
+              <div className="stat-label">Total Subnets</div>
+              <div className="stat-value">{allocs.length}</div>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon stat-icon-util">📊</div>
+            <div className="stat-content">
+              <div className="stat-label">Utilization</div>
+              <div className="stat-value">
+                {(() => {
+                  const primaryData = parseCidr(primary);
+                  const primaryAddrs = Math.pow(2, 32 - primaryData.prefix);
+                  const allocatedAddrs = allocs.reduce((sum, a) => sum + a.total_addresses, 0);
+                  const util = ((allocatedAddrs / primaryAddrs) * 100).toFixed(1);
+                  return `${util}%`;
+                })()}
+              </div>
+              <div className="stat-sub" style={{ fontSize: '12px', color: '#6b7280', marginTop: 4 }}>of primary block</div>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon stat-icon-export">⬇</div>
+            <div className="stat-content">
+              <div className="stat-label">Export Data</div>
+              <button className="stat-btn" onClick={() => downloadJSON(allocs)}>Download JSON Result</button>
+            </div>
+          </div>
+        </div>
+
         <div className="result-actions">
           <button className="btn" onClick={() => copyToClipboard(JSON.stringify(allocs))}>Copy JSON</button>
           <button className="btn" onClick={() => downloadJSON(allocs)}>Download JSON</button>
@@ -165,6 +201,7 @@ export default function VlsmCalculator() {
           <table className="vlsm-table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Name</th>
                 <th>Network</th>
                 <th>CIDR</th>
@@ -181,6 +218,7 @@ export default function VlsmCalculator() {
             <tbody>
               {allocs.map((a, i) => (
                 <tr key={i}>
+                  <td>{i + 1}</td>
                   <td>{a.name}</td>
                   <td>{a.network}</td>
                   <td>{`/${a.prefix}`}</td>
